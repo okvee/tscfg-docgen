@@ -28,14 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO okv: handling of typesafe config arrays?
-
-// TODO okv: replace pipe character by &#124;
-
-// TODO okv: possibility to group config values by module? (would require change to model class as well)
-
-// TODO okv: nicer rendering of list values (maybe have a separate template for list type?)
-
 @Mojo(name = "generate-docs", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
 public class GenDocMojo extends AbstractMojo {
 
@@ -50,6 +42,12 @@ public class GenDocMojo extends AbstractMojo {
   @Parameter(defaultValue = "${basedir}/config.md", required = true)
   private File outputFile;
 
+  @Parameter(defaultValue = "markdown-gitlab", required = true)
+  private String templateName;
+
+  @Parameter
+  private File customTemplateFile;
+
   @Parameter(defaultValue = "false", required = true)
   private boolean injectGeneratedDocs;
 
@@ -61,7 +59,6 @@ public class GenDocMojo extends AbstractMojo {
 
   public GenDocMojo() {
     freeMarkerConfig = new Configuration(Configuration.VERSION_2_3_23);
-    freeMarkerConfig.setClassForTemplateLoading(this.getClass(), "/");
     freeMarkerConfig.setDefaultEncoding(StandardCharsets.UTF_8.name());
     freeMarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     freeMarkerConfig.setLogTemplateExceptions(false);
@@ -83,7 +80,6 @@ public class GenDocMojo extends AbstractMojo {
           .peek(p -> getLog().info("Found input file: " + p))
           .map(p -> ConfigFactory.parseFile(p.toFile()).resolve())
           .reduce(ConfigFactory.empty(), Config::withFallback);
-
       return new ConfigFile(project.getArtifactId(), config);
     }
   }
@@ -111,18 +107,20 @@ public class GenDocMojo extends AbstractMojo {
       getLog().info("Injecting generated documentation to " + outputFile);
       Files.write(outputFile.toPath(), outputLines);
     } else {
-      Writer writer = new FileWriter(outputFile);
       getLog().info("Writing generated documentation to " + outputFile);
-      template.process(configFile, writer);
-      writer.close();
+      try (Writer writer = new FileWriter(outputFile)) {
+        template.process(configFile, writer);
+      }
     }
   }
 
   private Template loadTemplate() throws IOException {
-    // TODO okv: additional parameters
-    // templateType - one of the predefined templates (e.g. markdown-gitlab)
-    // templateFile - path to custom template file (overrides templateType)
-
-    return freeMarkerConfig.getTemplate("templates/markdown-gitlab.ftl");
+    if (customTemplateFile != null) {
+      freeMarkerConfig.setDirectoryForTemplateLoading(customTemplateFile.getParentFile());
+      return freeMarkerConfig.getTemplate(customTemplateFile.getName());
+    } else {
+      freeMarkerConfig.setClassForTemplateLoading(this.getClass(), "/");
+      return freeMarkerConfig.getTemplate("templates/" + templateName + ".ftl");
+    }
   }
 }

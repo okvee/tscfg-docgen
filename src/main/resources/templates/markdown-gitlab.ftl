@@ -1,5 +1,10 @@
+<!--
+  WARNING: the table below was generated automatically, any manual changes may
+           get overwritten
+-->
+
 | Name | Description | Value type | Default value |
 | :--- | :---------- | :--------- | :------------ |
-<#list values as value>
-| `${value.name}` | ${value.description} | ${value.valueType} | ${value.defaultValue} |
+<#list keyValues as kv>
+| `${kv.name}` | ${kv.description} | ${kv.valueType} | ${kv.defaultValue} |
 </#list>
