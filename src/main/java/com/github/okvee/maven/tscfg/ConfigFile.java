@@ -10,20 +10,14 @@ import java.util.Map;
 
 public class ConfigFile {
 
-  private final String moduleName;
   private final List<KeyValue> keyValues;
 
-  public ConfigFile(String moduleName, Config config) {
-    this.moduleName = moduleName;
+  public ConfigFile(Config config) {
     this.keyValues = new ArrayList<>(config.entrySet().size());
     for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
       keyValues.add(new KeyValue(entry));
     }
-    keyValues.sort(Comparator.comparing(KeyValue::getName));
-  }
-
-  public String getModuleName() {
-    return moduleName;
+    keyValues.sort(Comparator.comparing(KeyValue::getKey));
   }
 
   public List<KeyValue> getKeyValues() {
@@ -31,20 +25,20 @@ public class ConfigFile {
   }
 
   public static class KeyValue {
-    private final String name;
+    private final String key;
     private final String description;
     private final String valueType;
     private final String defaultValue;
 
     KeyValue(Map.Entry<String, ConfigValue> keyValue) {
-      name = escapeMarkdown(keyValue.getKey());
+      key = escapeMarkdown(keyValue.getKey());
       description = escapeMarkdown(getComment(keyValue.getValue()));
       valueType = keyValue.getValue().valueType().name().toLowerCase();
       defaultValue = escapeMarkdown(keyValue.getValue().unwrapped().toString());
     }
 
-    public String getName() {
-      return name;
+    public String getKey() {
+      return key;
     }
 
     public String getDescription() {
@@ -71,6 +65,7 @@ public class ConfigFile {
     }
 
     private static String escapeMarkdown(String str) {
+      // pipe is a special markdown character used to create tables
       return str.replace("|", "&#124;");
     }
   }

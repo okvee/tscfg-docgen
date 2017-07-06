@@ -80,7 +80,7 @@ public class GenDocMojo extends AbstractMojo {
           .peek(p -> getLog().info("Found input file: " + p))
           .map(p -> ConfigFactory.parseFile(p.toFile()).resolve())
           .reduce(ConfigFactory.empty(), Config::withFallback);
-      return new ConfigFile(project.getArtifactId(), config);
+      return new ConfigFile(config);
     }
   }
 

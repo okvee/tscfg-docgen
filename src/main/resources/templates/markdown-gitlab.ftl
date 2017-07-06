@@ -6,5 +6,5 @@
 | Name | Description | Value type | Default value |
 | :--- | :---------- | :--------- | :------------ |
 <#list keyValues as kv>
-| `${kv.name}` | ${kv.description} | ${kv.valueType} | ${kv.defaultValue} |
+| `${kv.key}` | ${kv.description} | ${kv.valueType} | ${kv.defaultValue} |
 </#list>
