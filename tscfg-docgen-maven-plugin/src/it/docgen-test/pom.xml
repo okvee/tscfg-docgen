@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.okvee</groupId>
+    <artifactId>tscfg-docgen-maven-plugin-test</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name></name>
+    <description></description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>mainmodule</module>
+        <module>module1</module>
+        <module>module2</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.okvee</groupId>
+                <artifactId>tscfg-docgen-maven-plugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-docs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+<!--
+                    <ignoredPrefixes>
+                        <prefix>my-project.module1</prefix>
+                    </ignoredPrefixes>
+-->
+                    <groups>
+                        <group>
+                            <heading>### Main application</heading>
+                            <prefix>my-project</prefix>
+                        </group>
+                        <group>
+                            <heading>### Module 1</heading>
+                            <prefix>my-project.module1</prefix>
+                        </group>
+                        <group>
+                            <heading>### Module 2</heading>
+                            <prefix>my-project.module2</prefix>
+                        </group>
+                    </groups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
