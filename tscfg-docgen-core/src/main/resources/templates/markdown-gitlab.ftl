@@ -1,6 +1,6 @@
 <!--
-  WARNING: the markdown below was generated automatically, any manual changes may
-           get overwritten
+  WARNING: the markdown below was generated automatically, any manual
+           changes may get overwritten
 -->
 
 <#macro escapeMarkdown string>${string?replace("|", "&#124;")}</#macro>
@@ -13,10 +13,10 @@
 </#list>
 </#macro>
 
-<#list groups as g>
-${g.heading}
+<#list groups as group>
+${group.heading}
 
-<@configTable keyValueList=g.keyValues />
+<@configTable keyValueList=group.keyValues />
 
 <#else>
 <@configTable keyValueList=keyValues />

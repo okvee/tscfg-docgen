@@ -27,7 +27,7 @@
             <plugin>
                 <groupId>io.github.okvee</groupId>
                 <artifactId>tscfg-docgen-maven-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -37,11 +37,21 @@
                     </execution>
                 </executions>
                 <configuration>
-<!--
+                    <!--<inputFilePattern>glob:/**/src/main/resources/reference.properties</inputFilePattern>-->
+                    <!--<customTemplateFile>my-phucking-template-file</customTemplateFile>-->
+                    <overwriteExisting>true</overwriteExisting>
+
+                    <!--<outputFile>container.md</outputFile>
+                    <injectGeneratedDocs>true</injectGeneratedDocs>-->
+                    <!--<injectionStartPlaceholder>placeholder</injectionStartPlaceholder>
+                    <injectionEndPlaceholder>placeholder</injectionEndPlaceholder>-->
+
                     <ignoredPrefixes>
-                        <prefix>my-project.module1</prefix>
+                        <prefix>ignored</prefix>
                     </ignoredPrefixes>
--->
+
+                    <!--<templateName>non-existent-standard-template</templateName>-->
+
                     <groups>
                         <group>
                             <heading>### Main application</heading>
@@ -54,6 +64,10 @@
                         <group>
                             <heading>### Module 2</heading>
                             <prefix>my-project.module2</prefix>
+                        </group>
+                        <group>
+                            <heading>### Others</heading>
+                            <prefix></prefix>
                         </group>
                     </groups>
                 </configuration>

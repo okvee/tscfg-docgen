@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.maven.plugins.annotations.Parameter;
 
+/**
+ * Container for configuration values describing a group definition
+ */
 @Getter @Setter
 public class GroupDefinition {
 

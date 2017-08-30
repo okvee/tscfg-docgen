@@ -6,19 +6,30 @@ import io.github.okvee.tscfg.core.model.Configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 public class FreemarkerDocGenerator implements DocGenerator {
 
-  private final String templateName;
-  private final File customTemplateFile;
-  private final freemarker.template.Configuration freeMarkerConfig;
+  private String standardTemplateName;
+  private File customTemplateFile;
+  private freemarker.template.Configuration freeMarkerConfig;
 
-  private FreemarkerDocGenerator(String templateName, File customTemplateFile) {
-    this.templateName = templateName;
+  public FreemarkerDocGenerator(String standardTemplateName) {
+    this.standardTemplateName = standardTemplateName;
+    initFreeMarkerConfig();
+  }
+
+  public FreemarkerDocGenerator(File customTemplateFile) {
+    if (!customTemplateFile.exists()) {
+      throw new IllegalArgumentException(
+          "Custom template file " + customTemplateFile + " does not exist.");
+    }
     this.customTemplateFile = customTemplateFile;
+    initFreeMarkerConfig();
+  }
 
+  private void initFreeMarkerConfig() {
     freeMarkerConfig = new freemarker.template.Configuration(
         freemarker.template.Configuration.VERSION_2_3_26);
     freeMarkerConfig.setDefaultEncoding(StandardCharsets.UTF_8.name());
@@ -28,8 +39,10 @@ public class FreemarkerDocGenerator implements DocGenerator {
   }
 
   @Override
-  public void generateDoc(Configuration config, Writer writer) throws Exception {
+  public String generateDoc(Configuration config) throws Exception {
+    StringWriter writer = new StringWriter();
     loadTemplate().process(config, writer);
+    return writer.toString();
   }
 
   private Template loadTemplate() throws IOException {
@@ -38,34 +51,7 @@ public class FreemarkerDocGenerator implements DocGenerator {
       return freeMarkerConfig.getTemplate(customTemplateFile.getName());
     } else {
       freeMarkerConfig.setClassForTemplateLoading(this.getClass(), "/");
-      return freeMarkerConfig.getTemplate("templates/" + templateName + ".ftl");
-    }
-  }
-
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  public static class Builder {
-
-    private String templateName;
-    private File customTemplateFile;
-
-    private Builder() {}
-
-    public Builder setTemplateName(String templateName) {
-      this.templateName = templateName;
-      return this;
-    }
-
-    public Builder setCustomTemplateFile(File customTemplateFile) {
-      this.customTemplateFile = customTemplateFile;
-      return this;
-    }
-
-    public FreemarkerDocGenerator build() {
-      // TODO okv: validate - either templateName or customTemplateFile must be set, but not both at the same time
-      return new FreemarkerDocGenerator(templateName, customTemplateFile);
+      return freeMarkerConfig.getTemplate("templates/" + standardTemplateName + ".ftl");
     }
   }
 
