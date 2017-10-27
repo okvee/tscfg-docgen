@@ -32,8 +32,6 @@ Using the core library
     <version>x.y.z</version>
 </dependency>
 
-..
-
 Using Maven plugin
 ------------------
 
@@ -45,7 +43,6 @@ Using Maven plugin
     <version>x.y.z</version>
 </plugin>
 
-..
 
 Usage
 =====
