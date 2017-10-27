@@ -26,22 +26,22 @@ Using the core library
 
 .. code-block:: xml
 
-<dependency>
-    <groupId>io.github.okvee</groupId>
-    <artifactId>tscfg-docgen-core</artifactId>
-    <version>x.y.z</version>
-</dependency>
+    <dependency>
+        <groupId>io.github.okvee</groupId>
+        <artifactId>tscfg-docgen-core</artifactId>
+        <version>x.y.z</version>
+    </dependency>
 
 Using Maven plugin
 ------------------
 
 .. code-block:: xml
 
-<plugin>
-    <groupId>io.github.okvee</groupId>
-    <artifactId>tscfg-docgen-maven-plugin</artifactId>
-    <version>x.y.z</version>
-</plugin>
+    <plugin>
+        <groupId>io.github.okvee</groupId>
+        <artifactId>tscfg-docgen-maven-plugin</artifactId>
+        <version>x.y.z</version>
+    </plugin>
 
 
 Usage
