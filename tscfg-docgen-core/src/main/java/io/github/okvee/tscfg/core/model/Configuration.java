@@ -2,6 +2,7 @@ package io.github.okvee.tscfg.core.model;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
+import com.typesafe.config.ConfigList;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class Configuration {
@@ -47,17 +49,28 @@ public class Configuration {
           defaultValue = "null";
         } else {
           valueType = keyValue.getValue().valueType().name().toLowerCase();
-          final String rawValue = keyValue.getValue().unwrapped().toString();
-          if (keyValue.getValue().valueType().equals(ConfigValueType.STRING)) {
-            defaultValue = '"' + rawValue + '"';
-          } else {
-            defaultValue = rawValue;
-          }
+          defaultValue = render(keyValue.getValue());
         }
       } catch (ConfigException.NotResolved e) {
         valueType = "N/A (unresolved)";
         defaultValue = keyValue.getValue().render();
       }
+    }
+
+    private static String render(ConfigValue value) {
+      String result;
+      if (value.valueType().equals(ConfigValueType.LIST)) {
+        result = "[" +
+            ((ConfigList) value).stream()
+                .map(KeyValue::render)
+                .collect(Collectors.joining(", ")) +
+            "]";
+      } else if (value.valueType().equals(ConfigValueType.STRING)) {
+        result = '"' + value.unwrapped().toString() + '"';
+      } else {
+        result = value.unwrapped().toString();
+      }
+      return result;
     }
 
     private static String createDescription(ConfigValue value) {
@@ -75,10 +88,13 @@ public class Configuration {
   @Getter
   public static class Group {
     private final String heading;
+    // TODO okv: include in rendered heading as "Heading (`prefix`)" and use freemarker's string?keep_after(prefix) to strip prefixes from keys
+    private final List<String> prefixes;
     private final List<KeyValue> keyValues = new ArrayList<>();
 
-    Group(String heading) {
+    Group(String heading, List<String> prefixes) {
       this.heading = heading;
+      this.prefixes = prefixes;
     }
 
     void add(KeyValue keyValue) {
@@ -105,11 +121,13 @@ public class Configuration {
     }
 
     public Builder addGroupDefinition(GroupDefinition groupDefinition) {
-      if (groupDefinitions.stream().anyMatch(
-          def -> def.getPrefix().equals(groupDefinition.getPrefix())))
-      {
-        throw new IllegalArgumentException(
-            "Duplicate group prefix " + groupDefinition.getPrefix());
+      for (GroupDefinition existingDef : groupDefinitions) {
+        List<String> existingPrefixes = new ArrayList<>(existingDef.getPrefixes());
+        existingPrefixes.retainAll(groupDefinition.getPrefixes());
+        if (!existingPrefixes.isEmpty()) {
+          throw new IllegalArgumentException(
+              "Duplicate group prefixes: " + existingPrefixes.toString());
+        }
       }
       groupDefinitions.add(groupDefinition);
       return this;
@@ -137,30 +155,33 @@ public class Configuration {
 
       final List<Group> groups = new ArrayList<>(groupDefinitions.size());
       if (!groupDefinitions.isEmpty()) {
-        final List<GroupDefinition> groupsSortedByPrefix =
-            new ArrayList<>(groupDefinitions);
-        groupsSortedByPrefix.sort(
-            (g1, g2) -> g2.getPrefix().length() - g1.getPrefix().length());
+        List<String> allPrefixes = new ArrayList<>();
+        groupDefinitions.forEach(gd -> allPrefixes.addAll(gd.getPrefixes()));
+        allPrefixes.sort((p1, p2) -> p2.length() - p1.length());
 
         final Map<String, Group> groupsMap = new HashMap<>();
         for (GroupDefinition groupDefinition : groupDefinitions) {
-          final Group group = new Group(groupDefinition.getHeading());
-          groupsMap.put(groupDefinition.getPrefix(), group);
+          final Group group = new Group(
+              groupDefinition.getHeading(),
+              groupDefinition.getPrefixes()
+          );
+          groupDefinition.getPrefixes().forEach(prefix -> groupsMap.put(prefix, group));
           groups.add(group);
         }
 
         for (KeyValue keyValue : keyValues) {
           boolean added = false;
-          for (GroupDefinition g : groupsSortedByPrefix) {
-            if (keyValue.getKey().startsWith(g.getPrefix())) {
-              groupsMap.get(g.getPrefix()).add(keyValue);
+          for (String prefix : allPrefixes) {
+            if (keyValue.getKey().startsWith(prefix)) {
+              groupsMap.get(prefix).add(keyValue);
               added = true;
               break;
             }
           }
           if (!added) {
-            throw new IllegalArgumentException(
-                "Suitable group not found for config key " + keyValue.getKey());
+            throw new IllegalArgumentException("" +
+                "Suitable group not found for config key '" + keyValue.getKey() + "', " +
+                "did you forget to assign empty (\"\") prefix to one of the groups?");
           }
         }
       }

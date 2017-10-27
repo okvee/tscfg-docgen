@@ -1,0 +1,11 @@
+* make sure versions of maven-related dependencies are correct
+* javadoc
+* tests
+* documentation, inspirations:
+  * https://github.com/asciidoctor/asciidoctor-maven-plugin
+  * https://searls.github.io/jasmine-maven-plugin/
+  * https://github.com/phasebash/jsdoc3-maven-plugin
+  * https://github.com/walokra/markdown-page-generator-plugin
+* maven plugin release
+* propose link in typesafe config github readme.md (pull request)
+* ??? typesafe config: origin comment not overridden by local one when using variable substitution (even if local is non-empty and origin is empty!!!) ???

@@ -5,3 +5,5 @@ target/
 .project
 .settings
 .externalToolBuilders
+/tscfg-docgen-maven-plugin/src/it/docgen-test/*.md
+/tscfg-docgen-maven-plugin/src/it/docgen-test/*.md

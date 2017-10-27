@@ -17,9 +17,11 @@ import org.apache.maven.project.MavenProject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Mojo(name = "generate-docs", defaultPhase = LifecyclePhase.PROCESS_RESOURCES)
+@Mojo(name = "generate-docs", defaultPhase = LifecyclePhase.SITE)
 public class GenerateDocsMojo extends AbstractMojo {
 
   @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -71,15 +73,21 @@ public class GenerateDocsMojo extends AbstractMojo {
     Configuration.Builder builder = Configuration.newBuilder()
         .setConfig(configProvider.getConfig());
     ignoredPrefixes.forEach(builder::addIgnoredPrefix);
-    groups.forEach(groupDef -> builder.addGroupDefinition(
-        new io.github.okvee.tscfg.core.model.GroupDefinition(
-            groupDef.getHeading(),
-            // empty group prefix in pom.xml will become a null reference,
-            // so we need to take care of that and replace it with
-            // an empty string explicitly
-            groupDef.getPrefix() == null ? "" : groupDef.getPrefix()
+    groups.forEach(groupDef ->
+        builder.addGroupDefinition(
+            new io.github.okvee.tscfg.core.model.GroupDefinition(
+                // empty string value in pom.xml will become a null reference,
+                // so we need to take care of that and replace it with
+                // an empty string explicitly
+                groupDef.getHeading() == null ? "" : groupDef.getHeading(),
+                groupDef.getPrefixes() == null ?
+                    Collections.emptyList() :
+                    groupDef.getPrefixes().stream()
+                        .map(prefix -> prefix == null ? "" : prefix)
+                        .collect(Collectors.toList())
+            )
         )
-    ));
+    );
     return builder.build();
   }
 
