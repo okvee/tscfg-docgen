@@ -6,10 +6,40 @@
 
     <groupId>io.github.okvee</groupId>
     <artifactId>tscfg-docgen</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <name>Typesafe Config DocGen Parent Module</name>
+    <description>
+        Tools for automatic documentation generation from typesafe config configurations
+    </description>
     <url>https://github.com/okvee/tscfg-docgen</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Ondrej Kvasnicka</name>
+            <email>okvasnicka@fastmail.fm</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>scm:git:git@github.com:okvee/tscfg-docgen.git</url>
+        <connection>scm:git:git@github.com:okvee/tscfg-docgen.git</connection>
+        <developerConnection>scm:git:git@github.com:okvee/tscfg-docgen.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <url>https://github.com/okvee/tscfg-docgen/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,18 +50,32 @@
         <module>tscfg-docgen-maven-plugin</module>
     </modules>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <dependencyManagement>
