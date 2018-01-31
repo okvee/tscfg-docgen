@@ -9,3 +9,6 @@
 * maven plugin release
 * propose link in typesafe config github readme.md (pull request)
 * ??? typesafe config: origin comment not overridden by local one when using variable substitution (even if local is non-empty and origin is empty!!!) ???
+* optional short text below each group heading (aka group summary)
+* optionally strip top-level prefix to save space (and print the top level prefix
+  somewhere at the beginning of the generated config docs block?

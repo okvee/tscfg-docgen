@@ -67,7 +67,7 @@ Maven plugin setup
         </executions>
     </plugin>
 
-1. Any unique ID of this execution
+1. A unique ID of this execution
 2. Phase in which the execution should take place (by default, this is ``site``)
 3. Goal to be executed (currently, ``generate-docs`` is the only supported goal)
 
@@ -76,15 +76,15 @@ Configuration options
 ---------------------
 
 All supported configuration options will be demonstrated using maven plugin configuration.
-The same set of options can be used when working directly with the core library.
+The same set of options can be used when working with the core library directly.
 
 inputFilePattern
   Pattern used to identify configuration files to read the configuration from (see
   `FileSystem.getPathMatcher(String)`_ for pattern syntax information). Defaults to
   ``glob:/**/src/main/resources/reference.conf`` (This pattern matches ``reference.conf``
-  files in all (sub)directories, i.e. even in sub-modules if the module using the plugin
-  has some. This makes it possible to generated one global configuration documentation
-  for an entire multi-module project).
+  files in all (sub)directories, i.e. even in sub-modules in case the module using the
+  plugin has some. This makes it possible to generated one global configuration
+  documentation for an entire multi-module project).
 
 outputFile
   Path to the file that will contain generated documentation. Defaults to

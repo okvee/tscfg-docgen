@@ -1,6 +1,6 @@
 <!--
-  WARNING: the markdown below was generated automatically, any manual
-           changes may get overwritten
+  WARNING: the configuration documentation below was generated automatically,
+           any manual changes may get overwritten
 -->
 
 <#macro escapeMarkdown string>${string?replace("|", "&#124;")}</#macro>
