@@ -6,12 +6,12 @@
     <parent>
         <groupId>io.github.okvee</groupId>
         <artifactId>tscfg-docgen</artifactId>
-        <version>0.2.0</version>
+        <version>0.3.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>tscfg-docgen-core</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>Typesafe Config DocGen Core</name>
     <url>https://github.com/okvee/tscfg-docgen</url>
 
