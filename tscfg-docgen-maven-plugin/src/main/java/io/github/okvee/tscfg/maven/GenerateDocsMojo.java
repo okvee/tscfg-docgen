@@ -52,6 +52,9 @@ public class GenerateDocsMojo extends AbstractMojo {
   private String injectionEndPlaceholder;
 
   @Parameter
+  private String topLevelNamespace;
+
+  @Parameter
   private List<String> ignoredPrefixes = new ArrayList<>();
 
   @Parameter
@@ -71,7 +74,8 @@ public class GenerateDocsMojo extends AbstractMojo {
         inputFilePattern
     );
     Configuration.Builder builder = Configuration.newBuilder()
-        .setConfig(configProvider.getConfig());
+        .setConfig(configProvider.getConfig())
+        .setTopLevelNamespace(topLevelNamespace);
     ignoredPrefixes.forEach(builder::addIgnoredPrefix);
     groups.forEach(groupDef ->
         builder.addGroupDefinition(

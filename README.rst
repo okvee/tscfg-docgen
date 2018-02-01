@@ -118,6 +118,13 @@ injectionEndPlaceholder
   a line in the output file which marks the end of the area where generated
   documentation will be injected. Defaults to ``<!-- tscfg-docgen-end -->``.
 
+topLevelNamespace
+  Determines top-level namespace (or prefix) of all configuration keys. When specified,
+  each configuration key can be displayed without this top-level namespace prefix in
+  the generated documentation to avoid repeating the prefix with every configuration
+  key. This setting can only be used when **all** configuration keys belong to the
+  same top-level namespace.
+
 ignoredPrefixes
   In order to exclude some of the configuration keys from generated documentation,
   you can specify one or more prefixes here. All keys matching one of the prefixes

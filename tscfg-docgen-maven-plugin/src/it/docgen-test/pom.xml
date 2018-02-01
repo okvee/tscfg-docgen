@@ -48,8 +48,10 @@
                     <!--<injectionStartPlaceholder>placeholder</injectionStartPlaceholder>
                     <injectionEndPlaceholder>placeholder</injectionEndPlaceholder>-->
 
+                    <topLevelNamespace>my-project</topLevelNamespace>
+
                     <ignoredPrefixes>
-                        <prefix>ignored</prefix>
+                        <prefix>my-project.ignored</prefix>
                     </ignoredPrefixes>
 
                     <groups>
@@ -74,7 +76,7 @@
                         <group>
                             <heading>### Others</heading>
                             <prefixes>
-                                <prefix></prefix>
+                                <prefix>my-project.others</prefix>
                             </prefixes>
                         </group>
                     </groups>

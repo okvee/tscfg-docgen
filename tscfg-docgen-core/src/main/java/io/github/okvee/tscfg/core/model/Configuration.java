@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,10 +22,12 @@ import java.util.stream.Collectors;
 @Getter
 public class Configuration {
 
+  private final String topLevelNamespace;
   private final List<KeyValue> keyValues;
   private final List<Group> groups;
 
-  private Configuration(List<KeyValue> keyValues, List<Group> groups) {
+  private Configuration(String topLevelNamespace, List<KeyValue> keyValues, List<Group> groups) {
+    this.topLevelNamespace = topLevelNamespace;
     this.keyValues = Objects.requireNonNull(keyValues);
     this.groups = Objects.requireNonNull(groups);
   }
@@ -36,24 +39,26 @@ public class Configuration {
   @Getter
   public static class KeyValue {
     private final String key;
+    private final String displayKey;
     private final String description;
     private String valueType;
     private String defaultValue;
 
-    KeyValue(Map.Entry<String, ConfigValue> keyValue) {
-      key = keyValue.getKey();
-      description = createDescription(keyValue.getValue());
+    KeyValue(String key, String displayKey, ConfigValue value) {
+      this.key = key;
+      this.displayKey = displayKey;
+      description = createDescription(value);
       try {
-        if (keyValue.getValue().valueType() == ConfigValueType.NULL) {
+        if (value.valueType() == ConfigValueType.NULL) {
           valueType = "N/A (null)";
           defaultValue = "null";
         } else {
-          valueType = keyValue.getValue().valueType().name().toLowerCase();
-          defaultValue = render(keyValue.getValue());
+          valueType = value.valueType().name().toLowerCase();
+          defaultValue = render(value);
         }
       } catch (ConfigException.NotResolved e) {
         valueType = "N/A (unresolved)";
-        defaultValue = keyValue.getValue().render();
+        defaultValue = value.render();
       }
     }
 
@@ -88,7 +93,6 @@ public class Configuration {
   @Getter
   public static class Group {
     private final String heading;
-    // TODO okv: include in rendered heading as "Heading (`prefix`)" and use freemarker's string?keep_after(prefix) to strip prefixes from keys
     private final List<String> prefixes;
     private final List<KeyValue> keyValues = new ArrayList<>();
 
@@ -105,6 +109,7 @@ public class Configuration {
   public static class Builder {
 
     private Config config;
+    private String topLevelNamespace;
     private Set<String> ignoredPrefixes = new HashSet<>(100);
     private List<GroupDefinition> groupDefinitions = new ArrayList<>(50);
 
@@ -112,6 +117,11 @@ public class Configuration {
 
     public Builder setConfig(Config config) {
       this.config = config;
+      return this;
+    }
+
+    public Builder setTopLevelNamespace(String topLevelNamespace) {
+      this.topLevelNamespace = topLevelNamespace;
       return this;
     }
 
@@ -134,21 +144,39 @@ public class Configuration {
     }
 
     public Configuration build() {
-      Set<Map.Entry<String, ConfigValue>> entries = config.entrySet();
+      Map<String, ConfigValue> entries = new LinkedHashMap<>();
+      config.entrySet().forEach(entry -> entries.put(entry.getKey(), entry.getValue()));
       // we want to include null values as well, but Config#entrySet() will
       // skip them, so we need to include them explicitly
-      entries.addAll(nullValues(config.root()));
+      entries.putAll(nullValues(config.root(), ""));
       final List<KeyValue> keyValues = new ArrayList<>(entries.size());
-      for (Map.Entry<String, ConfigValue> entry : entries) {
+      for (Map.Entry<String, ConfigValue> entry : entries.entrySet()) {
+        final String key = entry.getKey();
         boolean ignored = false;
         for (String ignoredPrefix : ignoredPrefixes) {
-          if (entry.getKey().startsWith(ignoredPrefix)) {
+          if (key.startsWith(ignoredPrefix)) {
             ignored = true;
             break;
           }
         }
         if (!ignored) {
-          keyValues.add(new KeyValue(entry));
+          KeyValue kv;
+          if (topLevelNamespace != null && !topLevelNamespace.isEmpty()) {
+            final String topLevelPrefix = topLevelNamespace + ".";
+            if (!key.startsWith(topLevelPrefix)) {
+              throw new IllegalArgumentException("" +
+                  "Configuration key '" +
+                  key +
+                  "' does not belong to top-level namespace '" +
+                  topLevelNamespace +
+                  "'!"
+              );
+            }
+            kv = new KeyValue(key, key.substring(topLevelPrefix.length()), entry.getValue());
+          } else {
+            kv = new KeyValue(key, key, entry.getValue());
+          }
+          keyValues.add(kv);
         }
       }
       keyValues.sort(Comparator.comparing(KeyValue::getKey));
@@ -185,17 +213,22 @@ public class Configuration {
           }
         }
       }
-      return new Configuration(keyValues, groups);
+      return new Configuration(topLevelNamespace, keyValues, groups);
     }
 
-    private static Set<Map.Entry<String, ConfigValue>> nullValues(ConfigObject config) {
-      Set<Map.Entry<String, ConfigValue>> result = new HashSet<>();
+    private static Map<String, ConfigValue> nullValues(ConfigObject config, String prefix) {
+      LinkedHashMap<String, ConfigValue> result = new LinkedHashMap<>();
       for (Map.Entry<String, ConfigValue> entry : config.entrySet()) {
         try {
           if (entry.getValue().valueType() == ConfigValueType.NULL) {
-            result.add(entry);
+            result.put(prefix + "." + entry.getKey(), entry.getValue());
           } else if (entry.getValue().valueType() == ConfigValueType.OBJECT) {
-            result.addAll(nullValues((ConfigObject) entry.getValue()));
+            result.putAll(
+                nullValues(
+                    (ConfigObject) entry.getValue(),
+                    prefix.isEmpty() ? entry.getKey() :  prefix + "." + entry.getKey()
+                )
+            );
           }
         } catch (ConfigException.NotResolved e) {
           // unresolved substitutions are handled elsewhere, here we just ignore them

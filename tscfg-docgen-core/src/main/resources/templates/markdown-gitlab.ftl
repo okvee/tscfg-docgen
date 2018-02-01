@@ -9,9 +9,13 @@
 | Name | Description | Value type | Default value |
 | :--- | :---------- | :--------- | :------------ |
 <#list keyValueList as kv>
-| <code><@escapeMarkdown string=kv.key /></code> | <@escapeMarkdown string=kv.description /> | ${kv.valueType} | <code><@escapeMarkdown string=kv.defaultValue /></code> |
+| <code><@escapeMarkdown string=kv.displayKey /></code> | <@escapeMarkdown string=kv.description /> | ${kv.valueType} | <code><@escapeMarkdown string=kv.defaultValue /></code> |
 </#list>
 </#macro>
+
+<#if topLevelNamespace?has_content>
+All the configuration keys belong to top-level namespace <code>${topLevelNamespace}</code>.
+</#if>
 
 <#list groups as group>
 ${group.heading}
